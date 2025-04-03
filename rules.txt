@@ -1,0 +1,15 @@
+tokens:
+    stockPrice: double
+    stockHalted: boolean
+
+rules:
+    priceHigh: stockPrice > 100.0
+    stockStopped: stockHalted == true
+    criticalCondition: priceHigh AND stockStopped
+    criticalConditionTwo: priceHigh AND stockHalted
+
+groups:
+    criticalSet:
+        priceHigh
+        stockStopped
+        criticalCondition
