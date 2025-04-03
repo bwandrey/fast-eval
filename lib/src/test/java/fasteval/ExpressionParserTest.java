@@ -4,7 +4,6 @@ import fasteval.definitions.RuleDefinition;
 import fasteval.definitions.TokenDefinition;
 import fasteval.model.RuleNode;
 import fasteval.parser.ExpressionParser;
-import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +19,8 @@ public class ExpressionParserTest {
     public void setup() {
         Set<RuleDefinition> ruleDefinitionSet = new HashSet<>(Arrays.asList(
                 new RuleDefinition("priceHigh", "stockPrice > 25.0"),
-                new RuleDefinition("stockStopped", "stockHalted == true")
+                new RuleDefinition("stockStopped", "stockHalted == true"),
+                new RuleDefinition("emergencyStop", "priceHigh AND stockStopped")
         ));
         List<TokenDefinition> tokens = Arrays.asList(
                 new TokenDefinition("stockPrice", "double"),
@@ -42,7 +42,7 @@ public class ExpressionParserTest {
     public void testParseSimpleRuleReference() {
         RuleNode node = parser.parse("priceHigh");
         assertEquals(RuleNode.Type.RULE_REFERENCE, node.getType());
-        assertEquals("priceHigh", node.getReferencedRule());
+        assertEquals("priceHigh", node.getReferencedRule().getName());
     }
 
     @Test
@@ -52,9 +52,9 @@ public class ExpressionParserTest {
         assertNotNull(node.getLeft());
         assertNotNull(node.getRight());
         assertEquals(RuleNode.Type.RULE_REFERENCE, node.getLeft().getType());
-        assertEquals("priceHigh", node.getLeft().getReferencedRule());
+        assertEquals("priceHigh", node.getLeft().getReferencedRule().getName());
         assertEquals(RuleNode.Type.RULE_REFERENCE, node.getRight().getType());
-        assertEquals("stockHalted", node.getRight().getReferencedRule());
+        assertEquals("stockHalted", node.getRight().getReferencedRule().getName());
 
     }
 
@@ -72,6 +72,6 @@ public class ExpressionParserTest {
         assertEquals(RuleNode.Type.OR, node.getType());
         assertEquals(RuleNode.Type.AND, node.getLeft().getType());
         assertEquals(RuleNode.Type.RULE_REFERENCE, node.getRight().getType());
-        assertEquals("emergencyStop", node.getRight().getReferencedRule());
+        assertEquals("emergencyStop", node.getRight().getReferencedRule().getName());
     }
 }
