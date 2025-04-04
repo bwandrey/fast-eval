@@ -33,7 +33,7 @@ public class FastEvalEngineTest {
         fasteval.parser.ExpressionParser parser = new fasteval.parser.ExpressionParser(rules, tokens);
         Map<String, RuleNode> ruleMap = parser.parseAllToMap();
 
-        return new RuleContext(rules, Set.copyOf(tokens), ruleMap);
+        return new RuleContext(rules, Set.copyOf(tokens), ruleMap, Map.of());
     }
 
     private EvalContext ctx(Object... kv) {

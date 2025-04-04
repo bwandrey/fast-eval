@@ -9,7 +9,9 @@ rules:
     criticalConditionTwo: priceHigh AND stockHalted
 
 groups:
-    criticalSet:
+    groupa:
         priceHigh
         stockStopped
+    groupb:
+        priceHigh
         criticalCondition

@@ -1,10 +1,9 @@
 package fasteval.api;
 
-
-import fasteval.TextFileParser;
 import fasteval.context.EvalContext;
 import fasteval.context.RuleContext;
 import fasteval.parser.ExpressionParser;
+import fasteval.parser.TextFileParser;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -21,7 +20,8 @@ public class FastEval {
                 new HashSet<>(parser.getRules()),
                 parser.getTokens()
         );
-        globalContext = expressionParser.generateRuleContext();
+
+        globalContext = expressionParser.generateRuleContext(parser.getGroups());
     }
 
     // Called at runtime with tokens

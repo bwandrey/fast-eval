@@ -1,4 +1,4 @@
-package fasteval;
+package fasteval.parser;
 
 import fasteval.definitions.RuleDefinition;
 import fasteval.definitions.TokenDefinition;
@@ -8,15 +8,20 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 public class TextFileParser
 {
     List<TokenDefinition> tokens = new ArrayList<>();
     List<RuleDefinition> rules = new ArrayList<>();
+    Map<String, List<String>> groups = new LinkedHashMap<>();
 
     public void parseRulesFile(String filePath) throws IOException {
+        String currentGroup = null;
+
         List<String> lines = Files.readAllLines(Paths.get(filePath));
         boolean parsingTokens = false;
         boolean parsingRules = false;
@@ -42,7 +47,12 @@ public class TextFileParser
                 String[] parts = line.split(":", 2);
                 rules.add(new RuleDefinition(parts[0].trim(), parts[1].trim()));
             }else if( parsingGroups) {
-                System.out.println("not yet implemented");
+                if (line.endsWith(":")) {
+                    currentGroup = line.substring(0, line.length() - 1).trim();
+                    groups.put(currentGroup, new ArrayList<>());
+                } else if (currentGroup != null) {
+                    groups.get(currentGroup).add(line);
+                }
             }
         }
     }

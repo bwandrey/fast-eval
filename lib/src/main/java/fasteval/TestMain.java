@@ -17,7 +17,9 @@ public class TestMain {
                     .withBoolean("stockHalted", true);
 
 
-           System.out.println(FastEval.withEvaluationContext(ctx).evaluate("stockStopped AND stockStopped"));
+
+           System.out.println(FastEval.withEvaluationContext(ctx).evaluateGroup("groupa"));
+           System.out.println(FastEval.withEvaluationContext(ctx).evaluateGroup("groupb"));
 
     }
 }

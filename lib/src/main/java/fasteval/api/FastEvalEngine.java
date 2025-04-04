@@ -8,6 +8,7 @@ import fasteval.parser.ExpressionParser;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 public class FastEvalEngine {
     private final RuleContext context;
@@ -35,6 +36,33 @@ public class FastEvalEngine {
 
         RuleNodeEvaluator evaluator = new RuleNodeEvaluator(evalContext, context.getRuleNodeMap());
         return evaluator.evaluate(rule);
+    }
+
+    public List<String> evaluateGroup(String groupName) {
+        List<String> ruleNames = context.getRuleGroups().get(groupName);
+        if (ruleNames == null) {
+            throw new IllegalArgumentException("Group not found: " + groupName);
+        }
+
+        List<String> passed = new ArrayList<>();
+        RuleNodeEvaluator evaluator = new RuleNodeEvaluator(evalContext, context.getRuleNodeMap());
+
+        for (String ruleName : ruleNames) {
+            RuleNode rule = context.getRuleNodeMap().get(ruleName);
+            if (rule == null) {
+                throw new IllegalStateException("Rule not found: " + ruleName);
+            }
+
+            try {
+                if (evaluator.evaluate(rule)) {
+                    passed.add(ruleName);
+                }
+            } catch (Exception e) {
+                throw new IllegalStateException("Evaluation failed for rule: " + ruleName, e);
+            }
+        }
+
+        return passed;
     }
 
 }

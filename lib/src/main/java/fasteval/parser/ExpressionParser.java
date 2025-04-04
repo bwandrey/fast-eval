@@ -41,10 +41,12 @@ public class ExpressionParser {
         return node;
     }
 
-    public RuleContext generateRuleContext() {
-        return new RuleContext(ruleDefinitionSet, new HashSet<>(tokenNameTokenDefinitionMap.values()), this.parseAllToMap());
+    public RuleContext generateRuleContext(Map<String, List<String>> groups) {
+        return new RuleContext(ruleDefinitionSet,
+                new HashSet<>(tokenNameTokenDefinitionMap.values()),
+                this.parseAllToMap(),
+                groups);
     }
-
     private List<String> tokenize(String expr) {
         return Arrays.asList(expr.replace("(", " ( ")
                 .replace(")", " ) ")
