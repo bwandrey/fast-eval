@@ -1,6 +1,6 @@
 package fasteval.parser;
 
-import fasteval.context.RuleContext;
+import fasteval.context.ObjectRuleContext;
 import fasteval.definitions.RuleDefinition;
 import fasteval.definitions.TokenDefinition;
 import fasteval.model.RuleNode;
@@ -41,12 +41,16 @@ public class ExpressionParser {
         return node;
     }
 
-    public RuleContext generateRuleContext(Map<String, List<String>> groups) {
-        return new RuleContext(ruleDefinitionSet,
-                new HashSet<>(tokenNameTokenDefinitionMap.values()),
-                this.parseAllToMap(),
-                groups);
+    public ObjectRuleContext generateRuleContext(Map<String, List<String>> groups) {
+        Map<String, RuleNode> ruleNodeMap = this.parseAllToMap();
+
+        // Create a List of TokenDefinitions from tokenNameTokenDefinitionMap
+        List<TokenDefinition> tokenDefinitions = new ArrayList<>(tokenNameTokenDefinitionMap.values());
+
+        // Return ObjectRuleContext with the list of tokens (not a map)
+        return new ObjectRuleContext(ruleNodeMap, groups, tokenDefinitions);
     }
+
     private List<String> tokenize(String expr) {
         return Arrays.asList(expr.replace("(", " ( ")
                 .replace(")", " ) ")

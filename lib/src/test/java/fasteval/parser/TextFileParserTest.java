@@ -1,6 +1,5 @@
 package fasteval.parser;
 
-import fasteval.TextFileParser;
 import fasteval.definitions.RuleDefinition;
 import fasteval.definitions.TokenDefinition;
 import org.junit.jupiter.api.Test;

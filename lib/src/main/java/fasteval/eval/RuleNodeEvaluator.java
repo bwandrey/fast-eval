@@ -9,11 +9,15 @@ import java.util.Map;
 public class RuleNodeEvaluator {
 
     private final EvalContext context;
-    private final Map<String, RuleNode> ruleNodeMap; // all rules resolved to ASTs
+    private final Map<String, RuleNode> ruleNodeMap;
+    private final Map<String, String> tokenTypeMap;
 
-    public RuleNodeEvaluator(EvalContext context, Map<String, RuleNode> ruleNodeMap) {
+    public RuleNodeEvaluator(EvalContext context,
+                             Map<String, RuleNode> ruleNodeMap,
+                             Map<String, String> tokenTypeMap) {
         this.context = context;
         this.ruleNodeMap = ruleNodeMap;
+        this.tokenTypeMap = tokenTypeMap;
     }
 
     public boolean evaluate(RuleNode node) {
@@ -45,51 +49,47 @@ public class RuleNodeEvaluator {
         String operator = node.getOperator();
         String valueStr = node.getValue();
 
-        Object value = getTokenValue(token);
+        String expectedType = tokenTypeMap.get(token);
+        if (expectedType == null) {
+            throw new IllegalArgumentException("Token type not found for: " + token);
+        }
 
-        if (value instanceof Double) {
-            double left = (Double) value;
-            double right = Double.parseDouble(valueStr);
-            return compare(left, right, operator);
-        } else if (value instanceof Integer) {
-            int left = (Integer) value;
-            int right = Integer.parseInt(valueStr);
-            return compare(left, right, operator);
-        } else if (value instanceof Boolean) {
-            boolean left = (Boolean) value;
-            boolean right = Boolean.parseBoolean(valueStr);
-            return compare(left, right, operator);
-        } else if (value instanceof String) {
-            String left = (String) value;
-            return compare(left, valueStr, operator);
-        } else {
-            throw new IllegalArgumentException("Unsupported token type: " + value.getClass());
+        Object value = getTokenValue(token, expectedType);
+
+        switch (expectedType.toLowerCase()) {
+            case "double":
+                return compare((Double) value, Double.parseDouble(valueStr.replaceAll(",", ".")), operator);
+            case "int":
+                return compare((Integer) value, Integer.parseInt(valueStr), operator);
+            case "boolean":
+                return compare((Boolean) value, Boolean.parseBoolean(valueStr), operator);
+            case "string":
+                return compare((String) value, valueStr, operator);
+            default:
+                throw new IllegalArgumentException("Unsupported token type: " + expectedType);
         }
     }
 
-    private Object getTokenValue(String token) {
-        try {
-            return context.getBoolean(token);
-        } catch (Exception ignored) {}
-        try {
-            return context.getDouble(token);
-        } catch (Exception ignored) {}
-        try {
-            return context.getInt(token);
-        } catch (Exception ignored) {}
-        return context.getString(token); // fallback
+    private Object getTokenValue(String token, String expectedType) {
+        return switch (expectedType.toLowerCase()) {
+            case "boolean" -> context.getBoolean(token);
+            case "int" -> context.getInt(token);
+            case "double" -> context.getDouble(token);
+            case "string" -> context.getString(token);
+            default -> throw new IllegalArgumentException("Unknown token type: " + expectedType);
+        };
     }
 
     private boolean compare(double left, double right, String op) {
-        switch (op) {
-            case ">": return left > right;
-            case "<": return left < right;
-            case "==": return left == right;
-            case "!=": return left != right;
-            case ">=": return left >= right;
-            case "<=": return left <= right;
-            default: throw new IllegalArgumentException("Invalid operator: " + op);
-        }
+        return switch (op) {
+            case ">" -> left > right;
+            case "<" -> left < right;
+            case "==" -> left == right;
+            case "!=" -> left != right;
+            case ">=" -> left >= right;
+            case "<=" -> left <= right;
+            default -> throw new IllegalArgumentException("Invalid operator: " + op);
+        };
     }
 
     private boolean compare(int left, int right, String op) {
@@ -97,18 +97,18 @@ public class RuleNodeEvaluator {
     }
 
     private boolean compare(boolean left, boolean right, String op) {
-        switch (op) {
-            case "==": return left == right;
-            case "!=": return left != right;
-            default: throw new IllegalArgumentException("Invalid boolean operator: " + op);
-        }
+        return switch (op) {
+            case "==" -> left == right;
+            case "!=" -> left != right;
+            default -> throw new IllegalArgumentException("Invalid boolean operator: " + op);
+        };
     }
 
     private boolean compare(String left, String right, String op) {
-        switch (op) {
-            case "==": return left.equals(right);
-            case "!=": return !left.equals(right);
-            default: throw new IllegalArgumentException("Invalid string operator: " + op);
-        }
+        return switch (op) {
+            case "==" -> left.equals(right);
+            case "!=" -> !left.equals(right);
+            default -> throw new IllegalArgumentException("Invalid string operator: " + op);
+        };
     }
 }

@@ -11,7 +11,7 @@ public class TestMain {
 
 
     public static void main(String[] args) throws IOException {
-           FastEval.loadFromFile("rules.txt");
+           FastEval.loadFromFile("rules.txt").usingStringCompilation();
            EvalContext ctx = new EvalContextImpl()
                     .withDouble("stockPrice", 150.0)
                     .withBoolean("stockHalted", true);
